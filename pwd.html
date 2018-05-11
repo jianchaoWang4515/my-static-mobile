@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0,minimum-scale=1.0">
+    <title>重置密码</title>
+    <link rel="stylesheet" type="text/css" href="./assets/css/common.css">
+    <link rel="stylesheet" type="text/css" href="./assets/css/pwd.css">
+    <script type="text/javascript" src="./assets/libs/layer_mobile/layer.js"></script>
+    <script type="text/javascript" src="./assets/libs/vue.js"></script>
+    <script type="text/javascript" src="./assets/libs/common.js"></script>
+    <script type="text/javascript" src="./assets/libs/flexible.js"></script>
+    <script type="text/javascript" src="./assets/libs/axios.js"></script>
+    <script type="text/javascript" src="./assets/libs/error.js"></script>
+    <script type="text/javascript">
+    Vue.use(SWTOOL);
+    </script>
+</head>
+
+<body>
+    <div class="page pwd-page" id="app">
+        <p class="page-title">{{title}}</p>
+        <form class="pwd-page__form" action="form_action.asp" method="get">
+            <div class="form-special">
+                <div class="form-special__label">
+                    <span class="text">新密码</span>
+                </div>
+                <input class="form-special__input" type="password" placeholder="请输入新密码" v-model="form.password" />
+            </div>
+            <div class="form-special">
+                <div class="form-special__label">
+                    <span class="text">确认密码</span>
+                </div>
+                <input class="form-special__input" type="password" placeholder="再次确认密码" v-model="form.newPassword" />
+            </div>
+            <div class="form-special form-special__captcha">
+                <div class="form-special__label">
+                    <span class="text">验证码</span>
+                </div>
+                <input class="form-special__input" placeholder="请输入验证码" v-model="form.captcha" />
+                <div class="form-special__captcha__img">
+                    <img @click="getCaptchaImgVersion" class="imgCaptcha" :src="imgSrc">
+                </div>
+            </div>
+            <a class="submit" @click="submit" type="button">确&nbsp;认</a>
+        </form>
+        <div class="rule-infor">
+            <p class="rule-infor__item">密码规则：</p>
+            <p class="rule-infor__item">1、<span>密码中必须同时包含</span><span class="rule-infor__item-highlight">大写字母、小写字母、数字、特殊符号三种以上。</span></p>
+            <p class="rule-infor__item">2、<span>密码长度</span><span class="rule-infor__item-highlight">不少于8位，且不能使用之前3次使用过的密码。</span></p>
+            <p class="rule-infor__item">3、<span>不允许使用密码复杂度过低的弱密码，如包含123456及简单英文字母的密码。</span></p>
+            <p class="rule-infor__item">4、<span class="rule-infor__item-highlight">不能包含用户的帐户名。</span></p>
+            <p class="rule-infor__item">5、<span class="rule-infor__item-highlight">修改密码后请注销重新登录电脑。</span></p>
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+Vue.prototype.$axios = axios;
+new Vue({
+    el: '#app',
+    data: {
+        title: '设置您的新密码',
+        form: {
+            password: '',
+            newPassword: '',
+            captcha: ''
+        },
+        captchaImgVersion: new Date().getTime()
+    },
+    computed: {
+        imgSrc() {
+            return '/captcha?v=' + this.captchaImgVersion;
+        }
+    },
+    methods: {
+        submit() {
+            var that = this;
+            if (this.verifyPwd()) {
+                layer.open({ type: 2 });
+                var url = '/adpwreset/ResetPassword';
+                var params = {
+                    password: this.form.newPassword,
+                    captcha: this.form.captcha
+                };
+                this.$axios({
+                    method: 'post',
+                    url: url,
+                    headers: {
+                        'Content-type': 'application/x-www-form-urlencoded'
+                    },
+                    params: params
+                }).then(function(res) {
+                    layer.closeAll();
+                    if (res.data.code === 'success') {
+                        location.href = './success.html';
+                    } else if (errors[res.data.code]) {
+                        that.SWTOOL.msg(errors[res.data.code]);
+                    } else {
+                        that.SWTOOL.msg('操作失败');
+                    }
+                }).catch(function(error) {
+                    layer.closeAll();
+                    that.SWTOOL.alert(JSON.stringify(error.response.data));
+                });
+            }
+        },
+        verifyPwd() {
+            var reg = /^(?![a-zA-Z]+$)(?![A-Z0-9]+$)(?![A-Z\\W_]+$)(?![a-z0-9]+$)(?![a-z\\W_]+$)(?![0-9\\W_]+$)[a-zA-Z0-9\\W_]{8,}$/;
+            if (!this.form.password) {
+                this.SWTOOL.msg('请输入密码');
+                return false;
+            } else {
+                if (!reg.test(this.form.password)) {
+                    this.SWTOOL.msg('密码格式错误');
+                    return false;
+                } else if (this.form.password === this.form.newPassword) {
+                    return true;
+                } else {
+                    this.SWTOOL.msg('密码不一致，请重新输入！');
+                    return false;
+                };
+            };
+        },
+        getCaptchaImgVersion() {
+            this.captchaImgVersion = new Date().getTime();
+        }
+    }
+})
+</script>
+
+</html>

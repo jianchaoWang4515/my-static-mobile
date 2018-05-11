@@ -1,0 +1,33 @@
+@import url("./var.css");
+.login-page{
+	background-image: url('../images/bg.jpg');
+	background-size: cover;
+	background-repeat: no-repeat;
+}
+.login-page__form .captchaBtn{
+	display: block;
+	height: 100%;
+	line-height: 0.69rem;
+	width: 100%;
+	color: #fff;
+	text-align: center;
+	background: rgba(45,54,74,0.80);
+	font-size: 0.37rem;
+	position: relative;
+}
+.login-page__form .captchaBtn .text{
+	position: absolute;
+	width: 100%;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+.login-page__form .imgCaptcha{
+	height: 100%;
+	width: 100%;
+	color: #fff;
+}
+.login-page__form .submit{
+	margin-top: 1.87rem;
+	font-size: 0.48rem;
+}

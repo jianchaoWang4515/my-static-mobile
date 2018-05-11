@@ -1,0 +1,49 @@
+@import './var.css';
+.success-page{
+	height: 100%;
+	width: 100%;
+	padding: 0 0.65rem;
+}
+.success-page .success-page__icon .img{
+	width: 4.3rem;
+	height: 4.3rem;
+}
+.success-page .success-page__icon .text{
+	font-size: 0.37rem;
+	color: #6C7C9D;
+	margin-top: 0.45rem;
+}
+.success-page .success-page__infor{
+	font-size: 0.42rem;
+}
+.success-page .success-page__infor .success-page__infor-title .item{
+	text-align: center;
+	color: #000000;
+}
+.success-page .success-page__infor .success-page__infor-title .item.name{
+	font-weight: bold;
+}
+.success-page .success-page__infor .success-page__infor-title .item.infor{
+	color: #999999;
+	font-size: 0.37rem;
+	margin-top: 0.08rem;
+	padding-bottom: 0.6rem;
+	border-bottom: solid 1px #D8D8D8;
+}
+.success-page .form-special{
+	padding-top: 0.3rem;
+	padding-bottom: 0.3rem;
+	margin-bottom: 0;
+}
+.success-page .form-special .form-special__label{
+	top: 50%;
+	transform: translateY(-50%);
+}
+.success-page .form-special.form-special-handle .form-special__handle-right .icon{
+	width: 0.75rem;
+	height: 0.75rem;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}

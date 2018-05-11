@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0,minimum-scale=1.0">
+    <title>登陆</title>
+    <link rel="stylesheet" type="text/css" href="./assets/css/common.css">
+    <link rel="stylesheet" type="text/css" href="./assets/css/login.css">
+    <script type="text/javascript" src="./assets/libs/layer_mobile/layer.js"></script>
+    <script type="text/javascript" src="./assets/libs/vue.js"></script>
+    <script type="text/javascript" src="./assets/libs/common.js"></script>
+    <script type="text/javascript" src="./assets/libs/flexible.js"></script>
+    <script type="text/javascript" src="./assets/libs/axios.js"></script>
+    <script type="text/javascript" src="./assets/libs/error.js"></script>
+    <script type="text/javascript">
+    Vue.use(SWTOOL);
+    </script>
+</head>
+
+<body>
+    <div class="page login-page" id="app">
+        <p class="page-title">{{title}}</p>
+        <form class="login-page__form flex-column" action="form_action.asp" method="get">
+            <div class="form-item">
+                <div class="form-item__label">
+                    <img class="icon" src="./assets/images/phone.png">
+                </div>
+                <input class="form-item__input" placeholder="手机号" v-model="form.mobile" />
+            </div>
+            <div class="form-item form-item-handle">
+                <div class="form-item__label">
+                    <img class="icon" src="./assets/images/shield.png">
+                </div>
+                <input class="form-item__input" placeholder="手机验证码" v-model="form.smscode" />
+                <div class="form-item__right">
+                    <a @click="getCaptcha" class="captchaBtn" href="javascript:;"><span class="text">{{captchaText}}</span></a>
+                </div>
+            </div>
+            <div class="form-item form-item-handle" style="margin-bottom: 0;">
+                <input class="form-item__input" placeholder="图形验证码" v-model="form.captcha" />
+                <div class="form-item__right">
+                    <img @click="getCaptchaImgVersion" class="imgCaptcha" :src="imgSrc">
+                </div>
+            </div>
+            <a class="submit" @click="submit" type="button">登&nbsp;陆</a>
+        </form>
+    </div>
+</body>
+<script type="text/javascript">
+Vue.prototype.$axios = axios;
+new Vue({
+    el: '#app',
+    data: {
+        intervalId: '',
+        captchaText: '获取验证码',
+        captchaDisabled: false,
+        title: '欢迎登陆',
+        form: {
+            mobile: '',
+            smscode: '',
+            captcha: ''
+        },
+        captchaImgVersion: new Date().getTime()
+    },
+    computed: {
+        imgSrc() {
+            return '/captcha?v=' + this.captchaImgVersion;
+        }
+    },
+    methods: {
+        submit() {
+            var that = this;
+            var url = '/adpwreset/Login';
+            var params = that.form;
+            layer.open({ type: 2 });
+            that.$axios({
+                method: 'post',
+                url: url,
+                headers: {
+                    'Content-type': 'application/x-www-form-urlencoded'
+                },
+                params: params
+            }).then(function(res) {
+                layer.closeAll();
+                if (res.data.code === 'success') {
+                    location.href = './pwd.html';
+                } else if (errors[res.data.code]) {
+                    that.SWTOOL.msg(errors[res.data.code]);
+                } else {
+                    that.SWTOOL.msg('登陆失败');
+                }
+            }).catch(function(error) {
+                layer.closeAll();
+                that.SWTOOL.alert(JSON.stringify(error.response.data));
+            });
+        },
+        getCaptcha() {
+            var that = this;
+            if (this.verifyAccount()) {
+                layer.open({ type: 2 });
+                axios.get('/adpwreset/sendMessageToMobile?mobile=' + this.form.mobile).then(function(res) {
+                    layer.closeAll();
+                    if (res.data.code === 'success') {
+                        that.SWTOOL.msg('发送成功，请注意查收！');
+                        that.countDown(60, that.captchaText)
+                    } else if (errors[res.data.code]) {
+                        that.clearCountDown();
+                        that.SWTOOL.msg(errors[res.data.code]);
+                    } else {
+                        that.clearCountDown();
+                        that.SWTOOL.msg(res.data.message);
+                    }
+                }).catch(function(error) {
+                    layer.closeAll();
+                    that.SWTOOL.alert(JSON.stringify(error.response.data));
+                });
+            };
+        },
+        getCaptchaImgVersion() {
+            this.captchaImgVersion = new Date().getTime();
+        },
+        countDown(count, text) {
+            var that = this;
+            if (!this.captchaDisabled) {
+                this.captchaText = count;
+                this.captchaDisabled = true;
+                if (this.intervalId) clearInterval(this.intervalId);
+                this.intervalId = setInterval(function() {
+                    if (count !== 0) {
+                        count--;
+                        that.captchaText = count;
+                    } else {
+                        that.captchaText = text;
+                        that.captchaDisabled = false;
+                        that.captchaLoading = false;
+                    };
+                }, 1000);
+            };
+        },
+        clearCountDown(text) {
+            var myText = text || '获取验证码';
+            clearInterval(this.intervalId);
+            this.captchaText = myText;
+            this.captchaLoading = false;
+            this.captchaDisabled = false;
+        },
+        verifyAccount() {
+            var reg = /^1[3,4,5,6,7,8,9]\d{9}|^2\d{10}$/;
+            if (reg.test(this.form.mobile)) return true;
+            else {
+                this.SWTOOL.msg('手机号码格式错误！');
+                return false;
+            }
+        }
+    }
+})
+</script>
+
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "@darkmoon/gap-web-mobile-uc",
+  "version": "1.0.0",
+  "description": "手机端-用户中心",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy:test": "scp -r ~/_WORK/gap-web-mobile-uc/*  root@10.86.87.180:/home/www/gap2-web-mobile-uc/",
+    "deploy:test1": "scp -r ~/_WORK/project/evun/gap-web-mobile-uc/*  root@10.86.87.180:/home/www/gap2-web-mobile-uc/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://git.evun.cn/gap2/gap-web-mobile-uc.git"
+  },
+  "author": "jianchao.wang",
+  "license": "MIT"
+}

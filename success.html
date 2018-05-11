@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0,minimum-scale=1.0">
+    <title>操作成功</title>
+    <link rel="stylesheet" type="text/css" href="./assets/css/common.css">
+    <link rel="stylesheet" type="text/css" href="./assets/css/success.css">
+    <script type="text/javascript" src="./assets/libs/layer_mobile/layer.js"></script>
+    <script type="text/javascript" src="./assets/libs/vue.js"></script>
+    <script type="text/javascript" src="./assets/libs/common.js"></script>
+    <script type="text/javascript" src="./assets/libs/flexible.js"></script>
+    <script type="text/javascript" src="./assets/libs/axios.js"></script>
+    <script type="text/javascript">
+    Vue.use(SWTOOL);
+    </script>
+</head>
+
+<body>
+    <div class="success-page flex-column" id="app">
+        <div class="success-page__icon flex-column flex-1 flex-center">
+            <img class="img" src="./assets/images/success.png">
+            <p class="text">修改成功</p>
+        </div>
+        <div class="success-page__infor flex-1">
+            <div class="success-page__infor-title">
+                <p class="item name">{{form.userName}}</p>
+                <p class="item infor">您可以使用以下账号登陆应用</p>
+            </div>
+            <div class="form-special form-special-handle" v-if="form.mobile">
+                <div class="form-special__label">
+                    <span class="text">手机号</span>
+                </div>
+                <div class="form-special__input">{{form.mobile}}</div>
+                <div class="form-special__handle-right">
+                    <img class="icon" src="./assets/images/sure.png">
+                </div>
+            </div>
+            <div class="form-special form-special-handle" v-if="form.domainAccount">
+                <div class="form-special__label">
+                    <span class="text">域账号</span>
+                </div>
+                <div class="form-special__input">{{form.domainAccount}}</div>
+                <div class="form-special__handle-right">
+                    <img class="icon" src="./assets/images/sure.png">
+                </div>
+            </div>
+            <div class="form-special form-special-handle" v-if="form.employeeNo">
+                <div class="form-special__label">
+                    <span class="text">工作号</span>
+                </div>
+                <div class="form-special__input">{{form.employeeNo}}</div>
+                <div class="form-special__handle-right">
+                    <img class="icon" src="./assets/images/sure.png">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+Vue.prototype.$axios = axios;
+new Vue({
+    el: '#app',
+    data: {
+        title: '修改成功',
+        form: {
+            userName: '',
+            mobile: '',
+            domainAccount: '',
+            employeeNo: ''
+        }
+    },
+    methods: {
+        getInfor() {
+            var that = this;
+            layer.open({ type: 2 });
+            var url = '/adpwreset/CurrentUser';
+            this.$axios.get(url).then(function(res) {
+                layer.closeAll();
+                if (res.data.code === 'success') {
+                    that.form = res.data.data;
+                } else if (res.data.code === 'PASSWORD-ERROR-NO-ACCOUNT' || res.data.code === 'PASSWORD-ERROR-NO-AUTH') {
+                    that.SWTOOL.msg('暂无权限，即将跳回登陆界面！');
+                    setTimeout(function() {
+                        location.href = './';
+                    }, 2000);
+                };
+            }).catch(function(error) {
+                layer.closeAll();
+                that.SWTOOL.alert(JSON.stringify(error.response.data));
+            });
+        }
+    },
+    mounted() {
+        this.getInfor();
+    }
+});
+</script>
+
+</html>
